@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="HRDataService.cs~RF6b84c994.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SV22T1020328.DomainModels\SV22T1020328.DomainModels.csproj" />
+    <ProjectReference Include="..\SV22T1020328.Models\SV22T1020328.Models.csproj" />
+  </ItemGroup>
+
+</Project>

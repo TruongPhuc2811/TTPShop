@@ -1,0 +1,73 @@
+﻿@model Customer
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-9">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Thông tin cá nhân</h5>
+                <a asp-action="ChangePassword" class="btn btn-sm btn-outline-primary">Đổi mật khẩu</a>
+            </div>
+
+            <div class="card-body">
+                @if (ViewBag.SuccessMessage != null)
+                {
+                    <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+                }
+
+                
+                    @Html.ValidationMessage("Eror", new { @class = "text-danger" })
+
+                
+
+                <form asp-action="Profile" method="post">
+                    <input type="hidden" name="customerID" value="@Model.CustomerID" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tên khách hàng</label>
+                            <input name="customerName" class="form-control" value="@Model.CustomerName" />
+                            <span asp-validation-for="CustomerName" class="text-danger" ></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tên liên hệ</label>
+                            <input name="contactName" class="form-control" value="@Model.ContactName" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input name="email" class="form-control" value="@Model.Email" readonly />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Điện thoại</label>
+                            <input name="phone" class="form-control" value="@Model.Phone" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tỉnh/Thành</label>
+                            <select class="form-select" asp-for="Province" asp-items="await SelectListHelper.Provinces()">
+                            </select>
+                            <span asp-validation-for="Province" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Địa chỉ</label>
+                            <input name="address" class="form-control" value="@Model.Address" />
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Trang chủ</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

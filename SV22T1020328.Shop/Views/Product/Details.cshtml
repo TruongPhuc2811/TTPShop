@@ -1,0 +1,84 @@
+﻿@using SV22T1020328.Models.Catalog
+@model Product
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    var photos = ViewBag.Photos as List<ProductPhoto> ?? new List<ProductPhoto>();
+    var attributes = ViewBag.Attributes as List<ProductAttribute> ?? new List<ProductAttribute>();
+    var rating = 4 + (Model.ProductID % 2);
+    var reviewCount = 50 + (Model.ProductID % 150);
+}
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <img src="~/images/products/@(string.IsNullOrWhiteSpace(Model.Photo) ? "nophoto.png" : Model.Photo)"
+                     alt="@Model.ProductName"
+                     class="img-fluid rounded w-100"
+                     style="max-height:420px;object-fit:cover;" />
+            </div>
+        </div>
+
+        @if (photos.Any())
+        {
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                @foreach (var p in photos.Where(x => !x.IsHidden).OrderBy(x => x.DisplayOrder))
+                {
+                    <img src="~/images/products/@p.Photo"
+                         alt="@p.Description"
+                         style="width:70px;height:70px;object-fit:cover;border-radius:8px;"
+                         class="border" />
+                }
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex flex-column">
+                <h3 class="fw-bold mb-2">@Model.ProductName</h3>
+
+                <div class="mb-2">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (i <= rating)
+                        {
+                            <i class="bi bi-star-fill text-warning"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-star text-warning"></i>
+                        }
+                    }
+                    <span class="text-muted ms-1">@rating.0/5 (@reviewCount đánh giá)</span>
+                </div>
+
+                <div class="text-danger fw-bold fs-4 mb-3">@Model.Price.ToString("N0") đ</div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ProductDescription))
+                {
+                    <p class="text-muted">@Model.ProductDescription</p>
+                }
+
+                @if (attributes.Any())
+                {
+                    <h6 class="mt-2">Thông số</h6>
+                    <ul class="mb-3">
+                        @foreach (var a in attributes.OrderBy(x => x.DisplayOrder))
+                        {
+                            <li><strong>@a.AttributeName:</strong> @a.AttributeValue</li>
+                        }
+                    </ul>
+                }
+
+                <div class="mt-auto d-flex gap-2">
+                    <input id="qty" type="number" min="1" value="1" class="form-control" style="max-width:100px;" />
+                    <button type="button" class="btn btn-primary" onclick="return shop.addToCart(@Model.ProductID, parseInt(document.getElementById('qty').value || '1'));">
+                        Thêm vào giỏ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,143 @@
+:root {
+    --primary: #1f6feb;
+    --primary-dark: #1246a1;
+    --bg-soft: #f6f8fb;
+    --text-soft: #64748b;
+    --footer-bg: #0f172a;
+}
+
+body {
+    background: var(--bg-soft);
+    color: #0f172a;
+}
+
+/* Appbar */
+.app-navbar {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 24px rgba(2, 6, 23, 0.15);
+}
+
+.app-brand {
+    color: #fff !important;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.brand-logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    position: relative;
+}
+
+    .app-nav-link:hover {
+        color: #fff !important;
+    }
+
+    .app-nav-link::after {
+        content: "";
+        position: absolute;
+        left: 0.5rem;
+        right: 0.5rem;
+        bottom: 0.2rem;
+        height: 2px;
+        background: #fff;
+        border-radius: 999px;
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.2s ease;
+    }
+
+    .app-nav-link:hover::after {
+        transform: scaleX(1);
+    }
+
+.app-cart-btn {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+}
+
+    .app-cart-btn:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+/* Common */
+.product-thumb {
+    height: 180px;
+    object-fit: cover;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.btn,
+.form-control,
+.form-select {
+    border-radius: 10px;
+}
+
+/* Footer */
+.shop-footer {
+    background: var(--footer-bg);
+    color: #fff;
+}
+
+.footer-title {
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.footer-subtitle {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.footer-links li + li,
+.footer-contact li + li {
+    margin-top: 0.5rem;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.82);
+    text-decoration: none;
+}
+
+    .footer-links a:hover {
+        color: #fff;
+    }
+
+.social-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+    .social-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        transform: translateY(-2px);
+    }

@@ -1,0 +1,38 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Không có quyền truy cập";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>@ViewData["Title"] - TNP Shop</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+        }
+
+        .denied-card {
+            max-width: 520px;
+            border: none;
+            border-radius: 16px;
+        }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center p-3">
+    <div class="card shadow-lg denied-card w-100">
+        <div class="card-body p-4 text-center">
+            <h3 class="fw-bold text-danger mb-2">Access Denied</h3>
+            <p class="text-muted mb-4">Bạn không có quyền truy cập chức năng này.</p>
+
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Về trang chủ</a>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

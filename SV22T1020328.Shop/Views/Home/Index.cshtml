@@ -1,0 +1,70 @@
+﻿@model ProductSearchInput
+@{
+    ViewData["Title"] = "Trang chủ";
+    var categories = ViewBag.Categories as IEnumerable<Category> ?? Enumerable.Empty<Category>();
+}
+
+<section class="hero-banner rounded-4 p-4 p-md-5 mb-4 text-white shadow-sm">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <p class="text-black">Chào mừng bạn đến với TTP Shop, Chúc bạn có một ngày vui vẻ</p>
+        </div>
+    </div>
+</section>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form id="homeSearchForm" method="get"
+              action="~/Home/Search"
+              data-target="homeSearchResult"
+              onsubmit="paginationSearch(event, this, 1)">
+            <input type="hidden" asp-for="Page" />
+            <input type="hidden" asp-for="PageSize" />
+            <input type="hidden" asp-for="CategoryID" />
+
+            <div class="row g-2">
+                <div class="col-md-10">
+                    <input class="form-control" asp-for="SearchValue" placeholder="Tìm theo tên sản phẩm..." />
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search me-1"></i>Tìm kiếm
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="mt-3 d-flex flex-wrap gap-2">
+            <button type="button"
+                    class="btn btn-sm btn-outline-primary js-category-tag @(Model.CategoryID == 0 ? "active" : "")"
+                    data-category="0">
+                Tất cả
+            </button>
+            @foreach (var c in categories)
+            {
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary js-category-tag @(Model.CategoryID == c.CategoryID ? "active" : "")"
+                        data-category="@c.CategoryID">
+                    @c.CategoryName
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+<div id="homeSearchResult"></div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            paginationSearch(null, document.getElementById("homeSearchForm"), @Model.Page);
+        });
+
+        $(document).on("click", ".js-category-tag", function () {
+            $(".js-category-tag").removeClass("active");
+            $(this).addClass("active");
+            $("#CategoryID").val($(this).data("category"));
+            paginationSearch(null, document.getElementById("homeSearchForm"), 1);
+        });
+    </script>
+}

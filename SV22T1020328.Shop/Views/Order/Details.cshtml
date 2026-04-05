@@ -1,0 +1,134 @@
+﻿@using SV22T1020328.Models.Sales
+@model OrderViewInfo
+
+@{
+    ViewData["Title"] = $"Chi tiết đơn hàng #{Model.OrderID}";
+    var details = ViewBag.Details as List<OrderDetailViewInfo> ?? new List<OrderDetailViewInfo>();
+
+    string StatusText(OrderStatusEnum status) => status switch
+    {
+        OrderStatusEnum.New => "Chờ duyệt",
+        OrderStatusEnum.Accepted => "Đã duyệt",
+        OrderStatusEnum.Shipping => "Đang giao",
+        OrderStatusEnum.Completed => "Hoàn tất",
+        OrderStatusEnum.Cancelled => "Đã hủy",
+        OrderStatusEnum.Rejected => "Từ chối",
+        _ => "Không xác định"
+    };
+
+    string StatusBadge(OrderStatusEnum status) => status switch
+    {
+        OrderStatusEnum.New => "bg-primary",
+        OrderStatusEnum.Accepted => "bg-info text-dark",
+        OrderStatusEnum.Shipping => "bg-warning text-dark",
+        OrderStatusEnum.Completed => "bg-success",
+        OrderStatusEnum.Cancelled => "bg-secondary",
+        OrderStatusEnum.Rejected => "bg-danger",
+        _ => "bg-dark"
+    };
+    decimal sumPrice = 0;
+    bool canCancel = Model.Status == OrderStatusEnum.New || Model.Status == OrderStatusEnum.Accepted;
+
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Chi tiết đơn hàng #@Model.OrderID</h4>
+    <div class="d-flex gap-2">
+        @if (canCancel)
+        {
+            <button type="button" class="btn btn-danger btn-sm"
+                    data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                Hủy đơn hàng
+            </button>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Quay lại</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Thông tin đơn hàng</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Trạng thái:</strong> <span class="badge @StatusBadge(Model.Status)">@StatusText(Model.Status)</span></p>
+                <p class="mb-2"><strong>Thời gian đặt:</strong> @Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</p>
+                <p class="mb-2"><strong>Người nhận:</strong> @Model.CustomerContactName</p>
+                <p class="mb-2"><strong>Điện thoại:</strong> @Model.CustomerPhone</p>
+                <p class="mb-0"><strong>Địa chỉ giao:</strong> @Model.DeliveryAddress, @Model.DeliveryProvince</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Danh sách sản phẩm trong đơn hàng của bạn</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-end">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in details)
+                        {
+                            sumPrice += d.TotalPrice;
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="~/images/products/@(string.IsNullOrWhiteSpace(d.Photo) ? "nophoto.png" : d.Photo)"
+                                             style="width:48px;height:48px;object-fit:cover;border-radius:8px;" />
+                                        <div>
+                                            <div class="fw-semibold">@d.ProductName</div>
+                                            <small class="text-muted">@d.Unit</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">@d.Quantity</td>
+                                <td class="text-end">@d.SalePrice.ToString("N0") đ</td>
+                                <td class="text-end fw-semibold">@d.TotalPrice.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold">Tổng cộng:</td>
+                            <td class="text-end fw-bold text-danger">@sumPrice.ToString("N0") đ</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (canCancel)
+{
+    <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận hủy đơn hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc muốn hủy đơn hàng <strong>#@Model.OrderID</strong> không?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Không</button>
+                    <form asp-action="Cancel" asp-route-id="@Model.OrderID" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

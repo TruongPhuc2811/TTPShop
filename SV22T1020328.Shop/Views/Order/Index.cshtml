@@ -1,0 +1,74 @@
+﻿@using SV22T1020328.Models.Sales
+@model List<OrderViewInfo>
+
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+    var currentStatus = (OrderStatusEnum)(ViewBag.Status ?? OrderStatusEnum.All);
+
+    string StatusText(OrderStatusEnum status) => status switch
+    {
+        OrderStatusEnum.New => "Chờ duyệt",
+        OrderStatusEnum.Accepted => "Đã duyệt",
+        OrderStatusEnum.Shipping => "Đang giao",
+        OrderStatusEnum.Completed => "Hoàn tất",
+        OrderStatusEnum.Cancelled => "Đã hủy",
+        OrderStatusEnum.Rejected => "Từ chối",
+        _ => "Tất cả"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Đơn hàng của tôi</h4>
+    <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary btn-sm">Mua thêm</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form id="orderFilterForm" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label mb-1">Trạng thái</label>
+                <select id="statusFilter" class="form-select" name="status">
+                    @foreach (OrderStatusEnum s in Enum.GetValues(typeof(OrderStatusEnum)))
+                    {
+                        <option value="@((int)s)" selected="@(s == currentStatus)">@StatusText(s)</option>
+                    }
+                </select>
+            </div>
+           
+        </form>
+    </div>
+</div>
+
+<div id="orderResult">
+    @await Html.PartialAsync("OrderSearchResult", Model)
+</div>
+
+@section Scripts {
+    <script>
+        function loadOrders() {
+            const query = $("#orderFilterForm").serialize();
+            $.get("/Order/Search", query, function (html) {
+                $("#orderResult").html(html);
+            });
+        }
+
+        $(document).on("submit", "#orderFilterForm", function (e) {
+            e.preventDefault();
+            loadOrders();
+        });
+
+        // tự động lọc khi đổi trạng thái (nếu muốn chỉ lọc khi bấm nút thì bỏ đoạn này)
+        $(document).on("change", "#statusFilter", function () {
+            loadOrders();
+        });
+    </script>
+}

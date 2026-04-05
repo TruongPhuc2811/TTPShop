@@ -1,0 +1,87 @@
+﻿@model List<OrderDetailViewInfo>
+
+@{
+    ViewData["Title"] = "Thanh toán";
+    var customer = ViewBag.Customer as Customer;
+    var totalAmount = Model.Sum(x => x.TotalPrice);
+    var customerName = ViewBag.CustomerName as string;
+    var phone = ViewBag.Phone as string;
+    var deliveryProvince = ViewBag.DeliveryProvinces as string;
+    var deliveryAddress = ViewBag.DeliveryAddress as string;
+
+    customerName = string.IsNullOrWhiteSpace(customerName) ? (customer?.ContactName ?? customer?.CustomerName ?? "") : customerName;
+    phone = string.IsNullOrWhiteSpace(phone) ? (customer?.Phone ?? "") : phone;
+    deliveryProvince = string.IsNullOrWhiteSpace(deliveryProvince) ? (customer?.Province ?? "") : deliveryProvince;
+    deliveryAddress = string.IsNullOrWhiteSpace(deliveryAddress) ? (customer?.Address ?? "") : deliveryAddress;
+}
+
+<h4 class="mb-3">Xác nhận đặt hàng</h4>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+}
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Thông tin giao hàng</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Checkout" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Người nhận</label>
+                        <input class="form-control" name="customerName" value="@customerName" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input class="form-control" name="phone" value="@phone" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tỉnh/Thành phố</label>
+                        <select class="form-select" name="deliveryProvince" asp-items="await SelectListHelper.Provinces()">
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ giao hàng</label>
+                        <input name="deliveryAddress" class="form-control" value="@deliveryAddress" />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Quay lại giỏ hàng</a>
+                        <button type="submit" class="btn btn-primary">Đặt hàng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Đơn hàng của bạn</h6>
+            </div>
+            <div class="card-body">
+                @foreach (var item in Model)
+                {
+                    <div class="d-flex justify-content-between mb-2">
+                        <div>
+                            <div class="fw-semibold">@item.ProductName</div>
+                            <small class="text-muted">SL: @item.Quantity</small>
+                        </div>
+                        <div class="text-end">@item.TotalPrice.ToString("N0") đ</div>
+                    </div>
+                }
+                <hr />
+                <div class="d-flex justify-content-between fw-bold">
+                    <span>Tổng thanh toán</span>
+                    <span class="text-danger">@totalAmount.ToString("N0") đ</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
