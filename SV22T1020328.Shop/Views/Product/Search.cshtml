@@ -2,43 +2,67 @@
 @{
     Layout = null;
 }
+
 <div class="mb-2 text-muted">
     Danh sách này có <strong>@Model.RowCount</strong> mặt hàng
 </div>
+
 <div class="row g-3">
-    @foreach (var item in Model.DataItems)
+    @if (Model.DataItems.Any())
     {
-        var rating = 4 + (item.ProductID % 2);
-        var reviewCount = 50 + (item.ProductID % 150);
+        @foreach (var item in Model.DataItems)
+        {
+            var rating = 4 + (item.ProductID % 2);
+            var reviewCount = 50 + (item.ProductID % 150);
 
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100 border-0 shadow-sm">
-                <img class="card-img-top product-thumb" src="~/images/products/@(string.IsNullOrWhiteSpace(item.Photo) ? "nophoto.png" : item.Photo)" />
-                <div class="card-body d-flex flex-column">
-                    <h6 class="card-title">@item.ProductName</h6>
-
-                    <div class="small mb-1">
-                        @for (int i = 1; i <= 5; i++)
-                        {
-                            if (i <= rating)
-                            {
-                                <i class="bi bi-star-fill text-warning"></i>
-                            }
-                            else
-                            {
-                                <i class="bi bi-star text-warning"></i>
-                            }
-                        }
-                        <span class="text-muted ms-1">(@reviewCount)</span>
+            <div class="col-6 col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm product-card">
+                    <div class="product-image-wrap">
+                        <img class="card-img-top product-thumb"
+                             src="~/images/products/@(string.IsNullOrWhiteSpace(item.Photo) ? "nophoto.png" : item.Photo)"
+                             asp-append-version="true"
+                             alt="@item.ProductName" />
                     </div>
+                    <div class="card-body d-flex flex-column p-3">
+                        <h6 class="card-title fw-semibold mb-2 product-title">@item.ProductName</h6>
 
-                    <div class="text-danger fw-bold mb-2">@item.Price.ToString("N0") đ</div>
-                    <div class="mt-auto d-grid gap-2">
-                        <a class="btn btn-outline-primary btn-sm" asp-controller="Product" asp-action="Details" asp-route-id="@item.ProductID">Chi tiết</a>
-                        <button class="btn btn-primary btn-sm" onclick="return shop.addToCart(@item.ProductID, 1)">Thêm giỏ hàng</button>
+                        <div class="small mb-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= rating)
+                                {
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-star text-warning"></i>
+                                }
+                            }
+                            <span class="text-muted ms-1">(@reviewCount)</span>
+                        </div>
+
+                        <div class="text-danger fw-bold mb-3 product-price">@item.Price.ToString("N0") đ</div>
+                        <div class="mt-auto d-flex gap-2 product-actions">
+                            <a class="btn btn-outline-primary btn-sm flex-grow-1"
+                               asp-controller="Product"
+                               asp-action="Details"
+                               asp-route-id="@item.ProductID">
+                                Chi tiết
+                            </a>
+                            <button class="btn btn-primary btn-sm flex-grow-1"
+                                    onclick="return shop.addToCart(@item.ProductID, 1)">
+                                Thêm giỏ hàng
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="alert alert-info mb-0">Không tìm thấy sản phẩm phù hợp.</div>
         </div>
     }
 </div>

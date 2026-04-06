@@ -1,4 +1,5 @@
-﻿@model List<OrderViewInfo>
+﻿@using SV22T1020328.Models.Sales
+@model List<OrderViewInfo>
 
 @{
     string StatusText(OrderStatusEnum status) => status switch
@@ -30,10 +31,10 @@
 }
 else
 {
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm order-list-card">
         <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="table-light">
+            <table class="table align-middle mb-0 order-list-table">
+                <thead>
                     <tr>
                         <th>Mã đơn</th>
                         <th>Thời gian đặt</th>
@@ -47,15 +48,15 @@ else
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td class="fw-semibold">#@item.OrderID</td>
+                            <td class="fw-bold order-code">#@item.OrderID</td>
                             <td>@item.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
                             <td>@item.DeliveryAddress, @item.DeliveryProvince</td>
-                            <td class="text-end text-danger fw-semibold">@item.SumPrice.ToString("N0") đ</td>
+                            <td class="text-end text-danger fw-bold order-money">@item.SumPrice.ToString("N0") đ</td>
                             <td class="text-center">
-                                <span class="badge @StatusBadge(item.Status)">@StatusText(item.Status)</span>
+                                <span class="badge @StatusBadge(item.Status) px-3 py-2">@StatusText(item.Status)</span>
                             </td>
                             <td class="text-center">
-                                <a asp-action="Details" asp-route-id="@item.OrderID" class="btn btn-sm btn-outline-primary">Xem</a>
+                                <a asp-action="Details" asp-route-id="@item.OrderID" class="btn btn-sm btn-outline-primary px-3">Xem</a>
                             </td>
                         </tr>
                     }

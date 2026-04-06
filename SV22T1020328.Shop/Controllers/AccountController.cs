@@ -209,6 +209,8 @@ namespace SV22T1020328.Shop.Controllers
 
             if (string.IsNullOrWhiteSpace(province))
                 ModelState.AddModelError(nameof(province), "Vui lòng chọn tỉnh/thành");
+            if (!ModelState.IsValid)
+                return View(customer);
             //Điều chỉnh lại các giá trị dữ liệu khác theo qui định/ qui ước của APP
             if (string.IsNullOrWhiteSpace(contactName)) contactName = "";
             if (string.IsNullOrWhiteSpace(phone)) phone = "";

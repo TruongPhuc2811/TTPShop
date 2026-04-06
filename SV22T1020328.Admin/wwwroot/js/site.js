@@ -15,12 +15,28 @@ function previewImage(input) {
     };
     reader.readAsDataURL(input.files[0]);
 }
+function normalizeMoneyInputs(form) {
+    if (!form) return;
+
+    const moneyInputs = form.querySelectorAll("input.money-input");
+    moneyInputs.forEach(input => {
+        const raw = (input.value || "").trim();
+        if (!raw) {
+            input.value = "";
+            return;
+        }
+
+        // Giữ lại chữ số, loại bỏ dấu chấm/phẩy/khoảng trắng/ký tự tiền tệ
+        const digits = raw.replace(/[^\d]/g, "");
+        input.value = digits;
+    });
+}
 
 // Tìm kiếm phân trang bằng AJAX
 function paginationSearch(event, form, page) {
     if (event) event.preventDefault();
     if (!form) return;
-
+    normalizeMoneyInputs(form);
     const url = form.action;
     const method = (form.method || "GET").toUpperCase();
     const targetId = form.dataset.target;

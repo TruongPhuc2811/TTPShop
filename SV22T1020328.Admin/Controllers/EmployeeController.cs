@@ -143,7 +143,7 @@ namespace SV22T1020328.Admin.Controllers
         /// </summary>
         /// <param name="id">Mã nhân viên cần xóa</param>
         /// <returns></returns>
-        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Delete(int id)
         {
             if (Request.Method == "POST")

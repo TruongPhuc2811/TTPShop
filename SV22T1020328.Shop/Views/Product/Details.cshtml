@@ -16,6 +16,7 @@
                 <img src="~/images/products/@(string.IsNullOrWhiteSpace(Model.Photo) ? "nophoto.png" : Model.Photo)"
                      alt="@Model.ProductName"
                      class="img-fluid rounded w-100"
+                     asp-append-version="true"
                      style="max-height:420px;object-fit:cover;" />
             </div>
         </div>

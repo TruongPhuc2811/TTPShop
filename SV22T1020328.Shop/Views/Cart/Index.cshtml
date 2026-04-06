@@ -41,6 +41,7 @@ else
                             <td>
                                 <div class="d-flex gap-2 align-items-center">
                                     <img src="~/images/products/@(string.IsNullOrWhiteSpace(item.Photo) ? "nophoto.png" : item.Photo)"
+                                         asp-append-version="true"
                                          style="width:56px;height:56px;object-fit:cover;border-radius:8px;" />
                                     <div>
                                         <div class="fw-semibold">@item.ProductName</div>

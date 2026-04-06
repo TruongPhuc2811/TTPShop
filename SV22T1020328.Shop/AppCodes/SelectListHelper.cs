@@ -41,7 +41,7 @@ namespace SV22T1020328.Shop
         {
             var list = new List<SelectListItem>()
             {
-                new SelectListItem() { Value = "0", Text = "-- Loại hàng --"}
+                new SelectListItem() { Value = "0", Text = "Tất cả"}
             };
             var input = new PaginationSearchInput() { Page = 1, PageSize = 0, SearchValue = "" };
             var result = await CatalogDataService.ListCategoriesAsync(input);

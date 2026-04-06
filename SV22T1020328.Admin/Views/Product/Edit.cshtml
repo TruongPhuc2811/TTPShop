@@ -66,6 +66,7 @@
                                    class="form-control money-input"
                                    placeholder=""
                                    min="0" />
+                            <span class="text-danger" asp-validation-for="Price"></span>
                         </div>
                     </div>
 
@@ -120,7 +121,10 @@
 
 @{
     if (Model.ProductID > 0){
-    await Html.RenderPartialAsync("ListPhotos",(List<ProductPhoto>)ViewBag.ProductPhotos);
-    await Html.RenderPartialAsync("ListAttributes", (List<ProductAttribute>)ViewBag.ProductAttributes);
+        var photos = ViewBag.ProductPhotos as List<ProductPhoto> ?? new List<ProductPhoto>();
+        var attributes = ViewBag.ProductAttributes as List<ProductAttribute> ?? new List<ProductAttribute>();
+
+    await Html.RenderPartialAsync("ListPhotos",(List<ProductPhoto>)photos);
+    await Html.RenderPartialAsync("ListAttributes", (List<ProductAttribute>)attributes);
     }
 }

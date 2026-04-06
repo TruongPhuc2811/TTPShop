@@ -17,9 +17,12 @@
     };
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0">Đơn hàng của tôi</h4>
-    <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary btn-sm">Mua thêm</a>
+<div class="d-flex justify-content-between align-items-center mb-3 order-page-header">
+    <div>
+        <h4 class="mb-1 fw-bold">Đơn hàng của tôi</h4>
+        <div class="text-muted">Theo dõi trạng thái đơn hàng nhanh chóng</div>
+    </div>
+    <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary">Mua thêm</a>
 </div>
 
 @if (TempData["SuccessMessage"] != null)
@@ -31,19 +34,22 @@
     <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
 
-<div class="card border-0 shadow-sm mb-3">
+<div class="card border-0 shadow-sm mb-3 order-filter-card">
     <div class="card-body">
-        <form id="orderFilterForm" class="row g-2 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label mb-1">Trạng thái</label>
-                <select id="statusFilter" class="form-select" name="status">
-                    @foreach (OrderStatusEnum s in Enum.GetValues(typeof(OrderStatusEnum)))
-                    {
-                        <option value="@((int)s)" selected="@(s == currentStatus)">@StatusText(s)</option>
-                    }
-                </select>
+        <form id="orderFilterForm">
+            <input type="hidden" id="statusFilter" name="status" value="@((int)currentStatus)" />
+
+            <div class="d-flex flex-wrap gap-2 order-status-chips">
+                @foreach (OrderStatusEnum s in Enum.GetValues(typeof(OrderStatusEnum)))
+                {
+                    var isActive = s == currentStatus;
+                    <button type="button"
+                            class="btn btn-sm @(isActive ? "btn-primary" : "btn-outline-primary") js-order-status"
+                            data-status="@((int)s)">
+                        @StatusText(s)
+                    </button>
+                }
             </div>
-           
         </form>
     </div>
 </div>
@@ -61,13 +67,10 @@
             });
         }
 
-        $(document).on("submit", "#orderFilterForm", function (e) {
-            e.preventDefault();
-            loadOrders();
-        });
-
-        // tự động lọc khi đổi trạng thái (nếu muốn chỉ lọc khi bấm nút thì bỏ đoạn này)
-        $(document).on("change", "#statusFilter", function () {
+        $(document).on("click", ".js-order-status", function () {
+            $(".js-order-status").removeClass("btn-primary").addClass("btn-outline-primary");
+            $(this).removeClass("btn-outline-primary").addClass("btn-primary");
+            $("#statusFilter").val($(this).data("status"));
             loadOrders();
         });
     </script>

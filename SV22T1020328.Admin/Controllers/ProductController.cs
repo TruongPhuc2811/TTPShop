@@ -6,6 +6,7 @@ using SV22T1020328.Models.Catalog;
 using SV22T1020328.Models.Common;
 using SV22T1020328.Models.HR;
 using System.Numerics;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SV22T1020328.Admin.Controllers
@@ -103,6 +104,7 @@ namespace SV22T1020328.Admin.Controllers
                 //Kiểm tra dữ liệu đầu vào: ProductName và Price là bắt buộc
                 if (string.IsNullOrWhiteSpace(data.ProductName))
                     ModelState.AddModelError(nameof(data.ProductName), "Vui lòng nhập tên sản phẩm");
+         
                 if (data.Price <= 0)
                     ModelState.AddModelError(nameof(data.Price), "Vui lòng nhập giá sản phẩm > 0");
                 if (string.IsNullOrWhiteSpace(data.Unit))
@@ -112,7 +114,10 @@ namespace SV22T1020328.Admin.Controllers
                 if (!data.SupplierID.HasValue || data.SupplierID == 0)
                     ModelState.AddModelError(nameof(data.SupplierID), "Vui lòng chọn nhà cung cáp");
                 if (!ModelState.IsValid)
+                {
                     return View("Edit", data);
+                }
+                    
 
                 //Xử lý upload ảnh
                 if (uploadPhoto != null)

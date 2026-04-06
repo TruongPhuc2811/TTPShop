@@ -31,12 +31,9 @@ namespace SV22T1020328.Admin.Controllers
             var userData = User.GetUserData();
             if (userData == null || string.IsNullOrWhiteSpace(userData.UserName))
                 return RedirectToAction("Login");
-            var oldHash = CryptHelper.HashMD5(oldPassword);
-            var userAccount = await SecurityDataService.EmployeeAuthorizeAsync(userData.UserName, oldHash);
-
-            if (userAccount == null)
+            if (string.IsNullOrWhiteSpace(oldPassword) && string.IsNullOrWhiteSpace(newPassword) && string.IsNullOrWhiteSpace(confirmPassword))
             {
-                ModelState.AddModelError(string.Empty, "Mật khẩu cũ không đúng.");
+                ModelState.AddModelError(string.Empty, "Vui lòng nhập đầy đủ mật khẩu cũ và mật khẩu mới.");
                 return View();
             }
             if (string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
@@ -49,8 +46,13 @@ namespace SV22T1020328.Admin.Controllers
                 ModelState.AddModelError(string.Empty, "Mật khẩu xác nhận không khớp.");
                 return View();
             }
-            
-
+            var oldHash = CryptHelper.HashMD5(oldPassword);
+            var userAccount = await SecurityDataService.EmployeeAuthorizeAsync(userData.UserName, oldHash);
+            if (userAccount == null)
+            {
+                ModelState.AddModelError(string.Empty, "Mật khẩu cũ không đúng.");
+                return View();
+            }
             var newHash = CryptHelper.HashMD5(newPassword);
             var success = await SecurityDataService.ChangeEmployeePasswordAsync(userData.UserName, newHash);
 

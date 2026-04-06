@@ -2,11 +2,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SV22T1020328.BusinessLayers;
 using SV22T1020328.Models.Sales;
+using System.Text.RegularExpressions;
 
 namespace SV22T1020328.Shop.Controllers
 {
     public class CartController : Controller
     {
+        /// <summary>
+        /// Kiểm tra tính hợp lệ của số điện thoại
+        /// </summary>
+        private static readonly Regex PhoneRegex = new(@"^(?:\+84|0)\d{9}$", RegexOptions.Compiled);
         /// <summary>
         /// Giao diện xem giỏ hàng hiện tại. 
         /// Người dùng có thể cập nhật số lượng hoặc xóa sản phẩm khỏi giỏ hàng từ đây.
@@ -141,6 +146,8 @@ namespace SV22T1020328.Shop.Controllers
                 ModelState.AddModelError(nameof(customerName), "Vui lòng nhập tên người nhận.");
             if (string.IsNullOrWhiteSpace(phone))
                 ModelState.AddModelError(nameof(phone), "Vui lòng nhập số điện thoại.");
+            else if (!PhoneRegex.IsMatch(phone))
+                ModelState.AddModelError(nameof(phone), "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam bắt đầu bằng +84 hoặc 0, theo sau là 9 chữ số.");
             if (string.IsNullOrWhiteSpace(deliveryProvince))
                 ModelState.AddModelError(nameof(deliveryProvince), "Vui lòng chọn tỉnh/thành.");
             if (string.IsNullOrWhiteSpace(deliveryAddress))

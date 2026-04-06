@@ -2,53 +2,55 @@
 
 @{
     ViewData["Title"] = "Sản phẩm";
+    var categoryItems = (await SelectListHelper.Categories()).ToList();
 }
 
-<div class="card border-0 shadow-sm mb-3">
+<div class="card search-filter-card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="search-filter-title">
+            <i class="bi bi-sliders me-1 text-primary"></i>Tìm kiếm và lọc sản phẩm
+        </h6>
+        <button type="button" id="btnClearFilter" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa bộ lọc
+        </button>
+    </div>
     <div class="card-body">
-       <form id="formSearch" method="get"
+        <form id="formSearch" method="get"
               action="~/Product/Search"
               data-target="searchResult"
               onsubmit="paginationSearch(event, this, 1)">
+            <input type="hidden" asp-for="PageSize" />
+            <input type="hidden" asp-for="CategoryID" />
 
-            <div class="row g-2">
-                <div class="col-md-4">
+            <div class="row g-3">
+                <div class="col-lg-6 filter-field">
                     <label class="form-label">Tên mặt hàng</label>
-                    <div class="input-group">
-                        <input type="hidden" asp-for="PageSize" />
+                    <div class="input-group search-input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input type="text"
                                class="form-control"
                                asp-for="SearchValue"
-                               placeholder="Tên mặt hàng..." autofocus />
-                        <button class="btn btn-info d-flex align-items-center">
-                            <i class="bi bi-search me-1"></i>
-                        </button>
+                               placeholder="Nhập tên sản phẩm..." autofocus />
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Loại hàng</label>
-                    <select class="form-select" asp-for="CategoryID" asp-items="await SelectListHelper.Categories()">
-                    </select>
-                </div>
 
-                <div class="col-md-2">
-                    <label class="form-label">Nhà cung cấp</label>
-                    <select class="form-select" asp-for="SupplierID" asp-items="await SelectListHelper.Suppliers()">
-                    </select>
-                </div>
-
-                <div class="col-md-3">
+                <div class="col-lg-6 filter-field">
                     <label class="form-label">Khoảng giá</label>
                     <div class="input-group">
-                        <input type="text"
-                               asp-for="MinPrice"
-                               class="form-control money-input"
-                               placeholder="Từ" />
+                        <input type="text" asp-for="MinPrice" class="form-control money-input" placeholder="Từ" />
                         <span class="input-group-text">-</span>
-                        <input type="text"
-                               asp-for="MaxPrice"
-                               class="form-control money-input"
-                               placeholder="Đến" />
+                        <input type="text" asp-for="MaxPrice" class="form-control money-input" placeholder="Đến" />
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="filter-actions">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search me-1"></i>Áp dụng bộ lọc
+                        </button>
+                        <button class="btn btn-outline-secondary" type="button" id="btnQuickSearchAll">
+                            <i class="bi bi-grid me-1"></i>Xem tất cả
+                        </button>
                     </div>
                 </div>
             </div>
@@ -56,12 +58,67 @@
     </div>
 </div>
 
-<div id="searchResult"></div>
+<div class="row g-3">
+    <div class="col-lg-3">
+        <div class="card border-0 shadow-sm category-sidebar">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold">
+                    <i class="bi bi-grid me-1 text-primary"></i>Danh mục loại hàng
+                </h6>
+            </div>
+            <div class="list-group list-group-flush category-list">
+                @foreach (var c in categoryItems)
+                {
+                    var value = 0;
+                    int.TryParse(c.Value, out value);
+                    var isActive = value == Model.CategoryID;
+
+                    <button type="button"
+                            class="list-group-item list-group-item-action d-flex align-items-center gap-2 js-product-category @(isActive ? "active" : "")"
+                            data-category="@value">
+                        <i class="bi bi-chevron-right small"></i>
+                        <span>@c.Text</span>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div id="searchResult"></div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
+        function runProductSearch(page) {
+            paginationSearch(null, document.getElementById("formSearch"), page || 1);
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
-            paginationSearch(null, document.getElementById("formSearch"), @Model.Page);
+            runProductSearch(@Model.Page);
+        });
+
+        $(document).on("click", ".js-product-page", function (e) {
+            e.preventDefault();
+            runProductSearch($(this).data("page"));
+        });
+
+        $(document).on("click", ".js-product-category", function () {
+            $(".js-product-category").removeClass("active");
+            $(this).addClass("active");
+            $("#CategoryID").val($(this).data("category"));
+            runProductSearch(1);
+        });
+
+        $("#btnClearFilter, #btnQuickSearchAll").on("click", function () {
+            $("#SearchValue").val("");
+            $("#CategoryID").val("0");
+            $("#MinPrice").val("");
+            $("#MaxPrice").val("");
+            $(".js-product-category").removeClass("active");
+            $('.js-product-category[data-category="0"]').addClass("active");
+            runProductSearch(1);
         });
     </script>
 }

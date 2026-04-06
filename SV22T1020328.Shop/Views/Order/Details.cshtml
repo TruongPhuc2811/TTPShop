@@ -26,109 +26,133 @@
         OrderStatusEnum.Rejected => "bg-danger",
         _ => "bg-dark"
     };
+
     decimal sumPrice = 0;
     bool canCancel = Model.Status == OrderStatusEnum.New || Model.Status == OrderStatusEnum.Accepted;
-
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0">Chi tiết đơn hàng #@Model.OrderID</h4>
-    <div class="d-flex gap-2">
-        @if (canCancel)
-        {
-            <button type="button" class="btn btn-danger btn-sm"
-                    data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
-                Hủy đơn hàng
-            </button>
-        }
-        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Quay lại</a>
-    </div>
-</div>
-
-<div class="row g-3">
-    <div class="col-lg-5">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
-                <h6 class="mb-0">Thông tin đơn hàng</h6>
-            </div>
-            <div class="card-body">
-                <p class="mb-2"><strong>Trạng thái:</strong> <span class="badge @StatusBadge(Model.Status)">@StatusText(Model.Status)</span></p>
-                <p class="mb-2"><strong>Thời gian đặt:</strong> @Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</p>
-                <p class="mb-2"><strong>Người nhận:</strong> @Model.CustomerContactName</p>
-                <p class="mb-2"><strong>Điện thoại:</strong> @Model.CustomerPhone</p>
-                <p class="mb-0"><strong>Địa chỉ giao:</strong> @Model.DeliveryAddress, @Model.DeliveryProvince</p>
-            </div>
+<div class="order-details-page">
+    <div class="order-details-header mb-3">
+        <div>
+            <h4 class="mb-1 fw-bold">Chi tiết đơn hàng #@Model.OrderID</h4>
+            <div class="text-muted small">Theo dõi trạng thái và thông tin giao hàng của bạn</div>
+        </div>
+        <div class="d-flex gap-2">
+            @if (canCancel)
+            {
+                <button type="button" class="btn btn-danger btn-sm"
+                        data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                    Hủy đơn hàng
+                </button>
+            }
+            <a asp-action="Index" class="btn btn-outline-primary btn-sm">Quay lại</a>
         </div>
     </div>
 
-    <div class="col-lg-7">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
-                <h6 class="mb-0">Danh sách sản phẩm trong đơn hàng của bạn</h6>
+    <div class="row g-3">
+        <div class="col-lg-5">
+            <div class="card order-info-card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0 fw-bold">Thông tin đơn hàng</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="order-info-list">
+                        <li>
+                            <span class="label">Trạng thái</span>
+                            <span class="value"><span class="badge @StatusBadge(Model.Status) px-3 py-2">@StatusText(Model.Status)</span></span>
+                        </li>
+                        <li>
+                            <span class="label">Thời gian đặt</span>
+                            <span class="value">@Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</span>
+                        </li>
+                        <li>
+                            <span class="label">Người nhận</span>
+                            <span class="value">@Model.CustomerContactName</span>
+                        </li>
+                        <li>
+                            <span class="label">Điện thoại</span>
+                            <span class="value">@Model.CustomerPhone</span>
+                        </li>
+                        <li>
+                            <span class="label">Địa chỉ giao</span>
+                            <span class="value">@Model.DeliveryAddress, @Model.DeliveryProvince</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Sản phẩm</th>
-                            <th class="text-center">SL</th>
-                            <th class="text-end">Đơn giá</th>
-                            <th class="text-end">Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var d in details)
-                        {
-                            sumPrice += d.TotalPrice;
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card order-items-card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0 fw-bold">Danh sách sản phẩm trong đơn hàng của bạn</h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 order-items-table">
+                        <thead>
                             <tr>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <img src="~/images/products/@(string.IsNullOrWhiteSpace(d.Photo) ? "nophoto.png" : d.Photo)"
-                                             style="width:48px;height:48px;object-fit:cover;border-radius:8px;" />
-                                        <div>
-                                            <div class="fw-semibold">@d.ProductName</div>
-                                            <small class="text-muted">@d.Unit</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-center">@d.Quantity</td>
-                                <td class="text-end">@d.SalePrice.ToString("N0") đ</td>
-                                <td class="text-end fw-semibold">@d.TotalPrice.ToString("N0") đ</td>
+                                <th>Sản phẩm</th>
+                                <th class="text-center col-qty">SL</th>
+                                <th class="text-end col-price">Đơn giá</th>
+                                <th class="text-end col-total">Thành tiền</th>
                             </tr>
-                        }
-                    </tbody>
-                    <tfoot class="table-light">
-                        <tr>
-                            <td colspan="3" class="text-end fw-bold">Tổng cộng:</td>
-                            <td class="text-end fw-bold text-danger">@sumPrice.ToString("N0") đ</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var d in details)
+                            {
+                                sumPrice += d.TotalPrice;
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="~/images/products/@(string.IsNullOrWhiteSpace(d.Photo) ? "nophoto.png" : d.Photo)"
+                                                 asp-append-version="true"
+                                                 class="order-item-thumb"
+                                                 alt="@d.ProductName" />
+                                            <div>
+                                                <div class="fw-semibold">@d.ProductName</div>
+                                                <small class="text-muted">@d.Unit</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">@d.Quantity</td>
+                                    <td class="text-end"><span class="money">@d.SalePrice.ToString("N0") đ</span></td>
+                                    <td class="text-end fw-semibold"><span class="money">@d.TotalPrice.ToString("N0") đ</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end fw-bold total-label">Tổng cộng:</td>
+                                <td class="text-end fw-bold total-price"><span class="money">@sumPrice.ToString("N0") đ</span></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-@if (canCancel)
-{
-    <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header">
-                    <h5 class="modal-title">Xác nhận hủy đơn hàng</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                </div>
-                <div class="modal-body">
-                    Bạn có chắc muốn hủy đơn hàng <strong>#@Model.OrderID</strong> không?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Không</button>
-                    <form asp-action="Cancel" asp-route-id="@Model.OrderID" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
-                    </form>
+    @if (canCancel)
+    {
+        <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Xác nhận hủy đơn hàng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        Bạn có chắc muốn hủy đơn hàng <strong>#@Model.OrderID</strong> không?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Không</button>
+                        <form asp-action="Cancel" asp-route-id="@Model.OrderID" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-}
+    }
+</div>

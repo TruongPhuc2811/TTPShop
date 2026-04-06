@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SV22T1020328.BusinessLayers;
-using SV22T1020328.Models.Catalog;
-using SV22T1020328.Models.Common;
+using SV22T1020328.Models.Sales;
 using SV22T1020328.Shop.Models;
 using System.Diagnostics;
 
@@ -12,47 +11,61 @@ namespace SV22T1020328.Shop.Controllers
     /// </summary>
     public class HomeController : Controller
     {
-        private const string HOMEPRODUCTSEARCHINPUT = "HomeProductSearchInput";
-        /// <summary>
-        /// Nhập đầu vào tìm kiếm
-        /// </summary>
-        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
-            var input = ApplicationContext.GetSessionData<ProductSearchInput>(HOMEPRODUCTSEARCHINPUT);
-            if (input == null)
+            var topProducts = new List<OrderDetailViewInfo>();
+
+            var completedOrders = await SalesDataService.ListOrdersAsync(new OrderSearchInput
             {
-                input = new ProductSearchInput
+                Page = 1,
+                PageSize = 0,
+                SearchValue = "",
+                Status = OrderStatusEnum.Completed
+            });
+
+            if (completedOrders.DataItems.Any())
+            {
+                var detailTasks = completedOrders.DataItems.Select(o => SalesDataService.ListDetailsAsync(o.OrderID));
+                var allDetails = (await Task.WhenAll(detailTasks)).SelectMany(x => x);
+
+                topProducts = allDetails
+                    .GroupBy(d => new { d.ProductID, d.ProductName, d.Photo })
+                    .Select(g => new OrderDetailViewInfo
+                    {
+                        ProductID = g.Key.ProductID,
+                        ProductName = g.Key.ProductName,
+                        Photo = g.Key.Photo,
+                        Quantity = g.Sum(x => x.Quantity),
+                        SalePrice = 0 // sẽ gán lại theo giá hiện tại
+                    })
+                    .OrderByDescending(x => x.Quantity)
+                    .Take(8)
+                    .ToList();
+
+                // Gán giá hiện tại từ bảng Products
+                var productTasks = topProducts.Select(async p => new
                 {
-                    Page = 1,
-                    PageSize = 8,
-                    SearchValue = "",
-                    CategoryID = 0,
-                    SupplierID = 0,
-                    MinPrice = 0,
-                    MaxPrice = 0
-                };
+                    p.ProductID,
+                    Product = await CatalogDataService.GetProductAsync(p.ProductID)
+                });
+                var currentProducts = await Task.WhenAll(productTasks);
+
+                foreach (var item in topProducts)
+                {
+                    var current = currentProducts.FirstOrDefault(x => x.ProductID == item.ProductID)?.Product;
+                    if (current != null)
+                    {
+                        item.SalePrice = current.Price;
+                        if (string.IsNullOrWhiteSpace(item.Photo))
+                            item.Photo = current.Photo ?? "nophoto.png";
+                    }
+                }
             }
 
-            var categories = await CatalogDataService.ListCategoriesAsync(new PaginationSearchInput { Page = 1, PageSize = 0 });
-            ViewBag.Categories = categories.DataItems;
+            ViewBag.TopProducts = topProducts;
+            return View();
+        }
 
-            return View(input);
-        }
-        /// <summary>
-        /// Tìm kiếm và hiển thị dữ liệu
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        [HttpGet]
-        public async Task<IActionResult> Search(ProductSearchInput input)
-        {
-            input.Page = input.Page < 1 ? 1 : input.Page;
-            input.PageSize = 8; 
-            ApplicationContext.SetSessionData(HOMEPRODUCTSEARCHINPUT, input);
-            var data = await CatalogDataService.ListProductsAsync(input);
-            return View(data);
-        }
         public IActionResult Privacy()
         {
             return View();

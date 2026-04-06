@@ -14,9 +14,7 @@ namespace SV22T1020328.Shop.Controllers
         /// <returns></returns>
         public IActionResult  Index()
         {
-
             var input = ApplicationContext.GetSessionData<ProductSearchInput>(PRODUCTSEARCHINPUT);
-
             if(input ==null) input = new ProductSearchInput
             {
                 Page = 1,
