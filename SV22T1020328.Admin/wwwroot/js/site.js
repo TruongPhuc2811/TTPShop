@@ -32,17 +32,66 @@ function normalizeMoneyInputs(form) {
     });
 }
 
+function toIsoDateString(value) {
+    if (!value) return value;
+    const raw = value.trim();
+
+    // Đã là ISO yyyy-MM-dd thì giữ nguyên
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+        return raw;
+    }
+
+    // dd/MM/yyyy -> yyyy-MM-dd
+    const match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (!match) return raw;
+
+    const dd = match[1].padStart(2, "0");
+    const mm = match[2].padStart(2, "0");
+    const yyyy = match[3];
+
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+function prepareDateInputsForSubmit(form) {
+    const dateInputs = form.querySelectorAll("input.date-picker");
+    const backups = [];
+
+    dateInputs.forEach(input => {
+        const original = input.value || "";
+        backups.push({ input, original });
+
+        if (original.trim() !== "") {
+            input.value = toIsoDateString(original);
+        }
+    });
+
+    // Hàm restore để trả lại định dạng hiển thị ban đầu
+    return function restore() {
+        backups.forEach(x => {
+            x.input.value = x.original;
+        });
+    };
+}
+
 // Tìm kiếm phân trang bằng AJAX
 function paginationSearch(event, form, page) {
     if (event) event.preventDefault();
     if (!form) return;
+
     normalizeMoneyInputs(form);
+
+    // Convert tạm ngày trước khi tạo FormData
+    const restoreDateInputs = prepareDateInputsForSubmit(form);
+
     const url = form.action;
     const method = (form.method || "GET").toUpperCase();
     const targetId = form.dataset.target;
 
     const formData = new FormData(form);
     formData.append("page", page);
+
+    // Trả lại giá trị hiển thị dd/MM/yyyy cho UI
+    restoreDateInputs();
 
     let fetchUrl = url;
     if (method === "GET") {
@@ -106,7 +155,7 @@ function paginationSearch(event, form, page) {
                 <span>Đang tải dữ liệu...</span>
             </div>`;
 
-        // Khởi tạo modal (chỉ tạo 1 lần)
+// Khởi tạo modal (chỉ tạo 1 lần)
         let modal = bootstrap.Modal.getInstance(modalEl);
         if (!modal) {
             modal = new bootstrap.Modal(modalEl, {

@@ -210,7 +210,8 @@ namespace SV22T1020328.Admin.Controllers
             var model = new ProductAttribute()
             {
                 ProductID = id,
-                AttributeID = 0
+                AttributeID = 0,
+                DisplayOrder = 1
             };
             ViewBag.Title = "Bổ sung thuộc tính";
             ViewBag.ProductId = id;
@@ -228,7 +229,7 @@ namespace SV22T1020328.Admin.Controllers
             var model = await CatalogDataService.GetAttributeAsync(attributeId);
             if (model == null)
                 return RedirectToAction("Index");
-
+            ViewBag.ProductId = id;
             return View(model);
         }
         /// <summary>
@@ -334,7 +335,8 @@ namespace SV22T1020328.Admin.Controllers
             var model = new ProductPhoto()
             {
                 ProductID = id,
-                PhotoID = 0
+                PhotoID = 0,
+                DisplayOrder = 1
             };
             ViewBag.ProductId = id;
             return View("EditPhoto", model);

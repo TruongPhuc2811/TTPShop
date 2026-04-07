@@ -27,9 +27,17 @@
                 <div class="col-md-4">
                     <label class="form-label">Thời gian lập đơn hàng</label>
                     <div class="input-group">
-                        <input type="text" asp-for="DateFrom" class="form-control date-picker" placeholder="Từ ngày..." />
+                        <input type="text"
+                               asp-for="DateFrom"
+                               asp-format="{0:dd/MM/yyyy}"
+                               class="form-control date-picker"
+                               placeholder="Từ ngày" />
                         <span class="input-group-text">-</span>
-                        <input type="text" asp-for="DateTo" class="form-control date-picker" placeholder="...đến ngày" />
+                        <input type="text"
+                               asp-for="DateTo"
+                               asp-format="{0:dd/MM/yyyy}"
+                               class="form-control date-picker"
+                               placeholder="Đến ngày" />
                     </div>
                 </div>
 

@@ -13,6 +13,7 @@
     phone = string.IsNullOrWhiteSpace(phone) ? (customer?.Phone ?? "") : phone;
     deliveryProvince = string.IsNullOrWhiteSpace(deliveryProvince) ? (customer?.Province ?? "") : deliveryProvince;
     deliveryAddress = string.IsNullOrWhiteSpace(deliveryAddress) ? (customer?.Address ?? "") : deliveryAddress;
+    var provinceItems = await SelectListHelper.Provinces();
 }
 
 <h4 class="mb-3">Xác nhận đặt hàng</h4>
@@ -42,7 +43,18 @@
 
                     <div class="mb-3">
                         <label class="form-label">Tỉnh/Thành phố</label>
-                        <select class="form-select" name="deliveryProvince" asp-items="await SelectListHelper.Provinces()">
+                        <select class="form-select" name="deliveryProvince">
+                            @foreach (var p in provinceItems)
+                            {
+                                if (string.Equals(p.Value, deliveryProvince, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <option value="@p.Value" selected>@p.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@p.Value">@p.Text</option>
+                                }
+                            }
                         </select>
                     </div>
 

@@ -54,7 +54,6 @@ if (!string.IsNullOrWhiteSpace(productImagesPath))
         RequestPath = "/images/products"
     });
 }
-
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();

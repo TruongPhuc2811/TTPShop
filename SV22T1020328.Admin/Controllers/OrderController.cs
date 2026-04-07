@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using SV22T1020328.BusinessLayers;
 using SV22T1020328.Models.Catalog;
 using SV22T1020328.Models.Sales;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SV22T1020328.Admin.Controllers
@@ -46,7 +48,23 @@ namespace SV22T1020328.Admin.Controllers
         /// <returns></returns>
         public async Task<IActionResult> Search(OrderSearchInput input)
         {
-         //   await Task.Delay(1000);
+            //   await Task.Delay(1000);
+            var culture = new CultureInfo("vi-VN");
+            var rawDateFrom = Request.Query["DateFrom"].ToString();
+            if (!string.IsNullOrWhiteSpace(rawDateFrom) &&
+                DateTime.TryParseExact(rawDateFrom, new[] { "d/M/yyyy", "dd/MM/yyyy", "yyyy-MM-dd" },
+                    culture, DateTimeStyles.None, out var dateFrom))
+            {
+                input.DateFrom = dateFrom.Date;
+            }
+
+            var rawDateTo = Request.Query["DateTo"].ToString();
+            if (!string.IsNullOrWhiteSpace(rawDateTo) &&
+                DateTime.TryParseExact(rawDateTo, new[] { "d/M/yyyy", "dd/MM/yyyy", "yyyy-MM-dd" },
+                    culture, DateTimeStyles.None, out var dateTo))
+            {
+                input.DateTo = dateTo.Date;
+            }
             var result = await SalesDataService.ListOrdersAsync(input);
             
             ApplicationContext.SetSessionData(ORDERSEARCHINPUT, input);
@@ -65,7 +83,7 @@ namespace SV22T1020328.Admin.Controllers
                 input = new ProductSearchInput()
                 {
                     Page = 1,
-                    PageSize = 3,
+                    PageSize = ApplicationContext.PageSizeCreateOrder,
                     SearchValue = "",
                     CategoryID = 0,
                     SupplierID = 0,
@@ -294,8 +312,15 @@ namespace SV22T1020328.Admin.Controllers
                 return Json(new ApiResult(0, "Số lượng phải lớn hơn 0"));
             if (orderId == 0)
                 return Json(new ApiResult(0, "Đơn hàng không tồn tại"));
+            var data = new OrderDetail
+            {
+                OrderID = orderId,
+                ProductID = productId,
+                Quantity = quantity,
+                SalePrice = salePrice
+            };
             //UPDATE trong giỏ hàng
-            var result = await OrderItemHelper.UpdateOrderItemAsync(orderId,productId, quantity, salePrice);
+            var result = await SalesDataService.UpdateDetailAsync(data);
             if (!result)
                 return Json(new ApiResult(0, "Cập nhật không thành công"));
             return Json(new ApiResult(1, ""));
@@ -306,12 +331,12 @@ namespace SV22T1020328.Admin.Controllers
         /// </summary>
         /// <param name="productId">Mã mặt hàng cần xử lý</param>
         /// <returns></returns>
-        public IActionResult DeleteOrderItem(int orderId =0,int productId = 0)
+        public async Task<IActionResult> DeleteOrderItem(int orderId =0,int productId = 0)
         {
             if (Request.Method == "POST")
             {
-               var result = OrderItemHelper.DeleteOrderItemAsync(orderId,productId);
-                if (!result.Result)
+               var result = await SalesDataService.DeleteDetailAsync(orderId, productId);
+                if (!result)
                     return Json(new ApiResult(0, "Xóa không thành công"));
                 return Json(new ApiResult(1, ""));
             }

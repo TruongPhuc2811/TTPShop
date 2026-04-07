@@ -110,7 +110,8 @@ namespace SV22T1020328.BusinessLayers
                 return false;
 
             // Đơn hàng đã duyệt / đang giao / hoàn tất / hủy / từ chối không được xóa
-            if (order.Status != OrderStatusEnum.New)
+            if (order.Status!= OrderStatusEnum.New &&
+                order.Status!= OrderStatusEnum.Accepted)
                 return false;
 
             return await orderDB.DeleteAsync(orderID);

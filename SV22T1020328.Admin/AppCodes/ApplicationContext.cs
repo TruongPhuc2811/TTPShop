@@ -119,6 +119,7 @@ namespace SV22T1020328.Admin
         /// Lấy số dòng hiển thị trên mỗi trang khi phân trang dữ liệu
         /// </summary>
         public static int PageSize => Convert.ToInt32(GetConfigValue("PageSize"));
+        public static int PageSizeCreateOrder => Convert.ToInt32(GetConfigValue("PageSizeCreateOrder"));
         
     }
 }

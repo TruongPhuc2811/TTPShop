@@ -33,9 +33,9 @@ namespace SV22T1020328.DataLayers.SQLServer
                 LEFT JOIN Customers c  ON o.CustomerID  = c.CustomerID
                 LEFT JOIN Employees e  ON o.EmployeeID  = e.EmployeeID
                 WHERE (@SearchValue = N'' OR c.CustomerName LIKE @SearchValue OR c.Phone LIKE @SearchValue)
-                  AND (@Status = 0        OR o.Status = @Status)
-                  AND (@DateFrom IS NULL  OR o.OrderTime >= @DateFrom)
-                  AND (@DateTo   IS NULL  OR o.OrderTime <= @DateTo)";
+                  AND (@Status = 0                 OR o.Status = @Status)
+                  AND (@DateFrom IS NULL           OR o.OrderTime >= @DateFrom)
+                  AND (@DateToExclusive IS NULL    OR o.OrderTime < @DateToExclusive)";
 
             string dataSql = input.PageSize > 0
                 ? @"
@@ -50,9 +50,9 @@ namespace SV22T1020328.DataLayers.SQLServer
                     LEFT JOIN Customers c  ON o.CustomerID  = c.CustomerID
                     LEFT JOIN Employees e  ON o.EmployeeID  = e.EmployeeID
                     WHERE (@SearchValue = N'' OR c.CustomerName LIKE @SearchValue OR c.Phone LIKE @SearchValue)
-                      AND (@Status = 0        OR o.Status = @Status)
-                      AND (@DateFrom IS NULL  OR o.OrderTime >= @DateFrom)
-                      AND (@DateTo   IS NULL  OR o.OrderTime <= @DateTo)
+                      AND (@Status = 0                 OR o.Status = @Status)
+                      AND (@DateFrom IS NULL           OR o.OrderTime >= @DateFrom)
+                      AND (@DateToExclusive IS NULL    OR o.OrderTime < @DateToExclusive)
                     ORDER BY o.OrderTime DESC
                     OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY"
                 : @"
@@ -67,17 +67,17 @@ namespace SV22T1020328.DataLayers.SQLServer
                     LEFT JOIN Customers c  ON o.CustomerID  = c.CustomerID
                     LEFT JOIN Employees e  ON o.EmployeeID  = e.EmployeeID
                     WHERE (@SearchValue = N'' OR c.CustomerName LIKE @SearchValue OR c.Phone LIKE @SearchValue)
-                      AND (@Status = 0        OR o.Status = @Status)
-                      AND (@DateFrom IS NULL  OR o.OrderTime >= @DateFrom)
-                      AND (@DateTo   IS NULL  OR o.OrderTime <= @DateTo)
+                      AND (@Status = 0                 OR o.Status = @Status)
+                      AND (@DateFrom IS NULL           OR o.OrderTime >= @DateFrom)
+                      AND (@DateToExclusive IS NULL    OR o.OrderTime < @DateToExclusive)
                     ORDER BY o.OrderTime DESC";
 
             var param = new
             {
                 SearchValue = searchParam,
                 Status = (int)input.Status,
-                input.DateFrom,
-                input.DateTo,
+                DateFrom = input.DateFrom?.Date,
+                DateToExclusive = input.DateTo?.Date.AddDays(1),
                 Offset = input.Offset,
                 input.PageSize
             };
